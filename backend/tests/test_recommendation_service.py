@@ -428,6 +428,38 @@ class TestFormatPrefsOccasion:
         assert "Low success rate" in text
 
 
+class TestFormatPrefsBodyMeasurements:
+    def _prefs(self, body_measurements):
+        service = RecommendationService.__new__(RecommendationService)
+        return service._format_preferences_for_prompt(
+            None, None, None, None, body_measurements=body_measurements
+        )
+
+    def test_dress_size_is_forwarded(self):
+        assert "dress size 8" in self._prefs({"dress_size": "8"})
+
+    def test_every_collected_size_is_forwarded(self):
+        body = {
+            "shirt_size": "M",
+            "pants_size": "32",
+            "dress_size": "8",
+            "shoe_size": "10",
+        }
+        text = self._prefs(body)
+        for expected in ("shirt size M", "pants size 32", "dress size 8", "shoe size 10"):
+            assert expected in text
+
+    def test_sizes_render_alongside_measurements(self):
+        text = self._prefs({"height": 165, "hips": 90, "dress_size": "8"})
+        assert "- Body: height 165cm, hips 90cm, dress size 8" in text
+
+    def test_empty_size_is_omitted(self):
+        assert self._prefs({"shirt_size": "", "dress_size": ""}) == ""
+
+    def test_no_measurements_produces_no_body_line(self):
+        assert self._prefs({}) == ""
+
+
 class TestPromptPreRanking:
     def test_pre_ranking_hint_present(self):
         from app.services.recommendation_service import RECOMMENDATION_PROMPT

@@ -46,6 +46,8 @@ SINGLE_OUTFIT_FORMAT = (
     'sleeves every time, vary your advice"}}'
 )
 
+BODY_SIZE_KEYS = ("shirt_size", "pants_size", "dress_size", "shoe_size")
+
 
 def get_time_of_day(user: User) -> str:
     try:
@@ -350,12 +352,9 @@ class RecommendationService:
                 body_parts.append(f"hips {m['hips']}cm")
             if m.get("inseam"):
                 body_parts.append(f"inseam {m['inseam']}cm")
-            if m.get("shirt_size"):
-                body_parts.append(f"shirt size {m['shirt_size']}")
-            if m.get("pants_size"):
-                body_parts.append(f"pants size {m['pants_size']}")
-            if m.get("shoe_size"):
-                body_parts.append(f"shoe size {m['shoe_size']}")
+            for size_key in BODY_SIZE_KEYS:
+                if m.get(size_key):
+                    body_parts.append(f"{size_key.removesuffix('_size')} size {m[size_key]}")
             if body_parts:
                 lines.append(f"- Body: {', '.join(body_parts)}")
 
